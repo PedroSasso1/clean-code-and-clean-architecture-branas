@@ -1,0 +1,8 @@
+{
+  "singleQuote": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "rangeStart": 0,
+  "rangeEnd": 130,
+  "semi": true
+}
