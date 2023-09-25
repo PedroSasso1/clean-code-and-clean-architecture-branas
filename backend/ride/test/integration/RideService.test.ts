@@ -9,6 +9,11 @@ import RideDAO from '../../src/application/repository/RideDAO';
 import RideDAODatabase from '../../src/infra/repository/RideDAODatabase';
 import Signup from '../../src/application/usecase/Signup';
 import StartRide from '../../src/application/usecase/StartRide';
+import Position from '../../src/domain/Position';
+import GetPosition from '../../src/application/usecase/GetPosition';
+import UpdatePosition from '../../src/application/usecase/UpdatePosition';
+import PositionDAO from '../../src/application/repository/PositionDAO';
+import PositionDAODatabase from '../../src/infra/repository/PositionDAODatabase';
 
 let connection: Connection;
 let accountDAO: AccountDAO;
@@ -18,16 +23,22 @@ let requestRide: RequestRide;
 let acceptRide: AcceptRide;
 let startRide: StartRide;
 let getRide: GetRide;
+let positionDAO: PositionDAO;
+let getPosition: GetPosition;
+let updatePosition: UpdatePosition;
 
 beforeEach(function () {
   connection = new PgPromiseAdapter();
   accountDAO = new AccountDAODatabase(connection);
   rideDAO = new RideDAODatabase(connection);
+  positionDAO = new PositionDAODatabase(connection);
   signup = new Signup(accountDAO);
   requestRide = new RequestRide(rideDAO, accountDAO);
   acceptRide = new AcceptRide(rideDAO, accountDAO);
   startRide= new StartRide(rideDAO);
   getRide = new GetRide(rideDAO);
+  getPosition = new GetPosition(positionDAO)
+  updatePosition = new UpdatePosition(positionDAO, rideDAO)
 })
 
 test('Deve solicitar uma corrida e receber a rideId', async function () {
@@ -360,6 +371,57 @@ test('Deve solicitar uma corrida, aceitar uma corrida e iniciar uma corrida', as
   const outputGetRide = await getRide.execute(outputRequestRide.rideId);
   expect(outputGetRide.getStatus()).toBe('in_progress');
   expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
+});
+
+test.only('Deve solicitar uma corrida, aceitar uma corrida, iniciar uma corrida e atualizar a posição da corrida', async function () {
+  const inputSignupPassenger = {
+    name: 'John Doe',
+    email: `john.doe${Math.random()}@gmail.com`,
+    cpf: '95818705552',
+    isPassenger: true,
+    isDriver: false,
+    carPlate: ''
+  };
+  const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+  const inputRequestRide = {
+    passengerId: outputSignupPassenger.accountId,
+    from: {
+      lat: -27.5849052557808835,
+      long: -48.545022195325124,
+    },
+    to: {
+      lat: -27.496887588317275,
+      long: -48.522234807851476,
+    },
+  };
+  const outputRequestRide = await requestRide.execute(inputRequestRide);
+  const inputSignupDriver = {
+    name: 'John Doe',
+    email: `john.doe${Math.random()}@gmail.com`,
+    cpf: '95818705552',
+    carPlate: 'AAA9999',
+    isDriver: true,
+    isPassenger: false
+  };
+  const outputSignupDriver = await signup.execute(inputSignupDriver);
+  const inputAcceptRide = {
+    rideId: outputRequestRide.rideId,
+    driverId: outputSignupDriver.accountId,
+  }
+  await acceptRide.execute(inputAcceptRide);
+  const inputStartRide = { rideId: outputRequestRide.rideId }
+  await startRide.execute(inputStartRide);
+  const inputUpdatePosition = {
+    rideId: outputRequestRide.rideId,
+    lat: 1,
+    long: 1
+  }
+  const outputUpdatePosition = await updatePosition.execute(inputUpdatePosition);
+  const outputGetPosition = await getPosition.execute(outputUpdatePosition.positionId)
+  expect(outputGetPosition?.rideId).toBe(outputRequestRide.rideId)
+  expect(outputGetPosition?.lat).toBe(1)
+  expect(outputGetPosition?.long).toBe(1)
+  expect(outputGetPosition?.date).toBeDefined();
 });
 
 afterEach(async function () {
