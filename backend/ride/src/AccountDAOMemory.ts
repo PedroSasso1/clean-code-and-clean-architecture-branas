@@ -16,7 +16,7 @@ export default class AccountDAOMemory implements AccountDAO {
 
   async getById(accountId: string): Promise<any> {
     const account = this.accounts.find(
-      (account) => account.accountId === accountId
+      (account) => account.accountId === accountId,
     );
     if (!account) return;
     account.account_id = account.accountId;
