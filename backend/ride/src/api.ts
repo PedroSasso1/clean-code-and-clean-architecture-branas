@@ -1,7 +1,7 @@
-import express from "express";
-import AccountService from "./AccountService";
-const app = express();
+import express from 'express';
+import AccountService from './AccountService';
 
+const app = express();
 app.use(express.json());
 
 const accountService = new AccountService();

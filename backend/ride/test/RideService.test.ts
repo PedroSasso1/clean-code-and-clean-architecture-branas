@@ -49,14 +49,14 @@ test('Deve solicitar uma corrida', async function () {
   const rideService = new RideService();
   const outputRequestRide = await rideService.requestRide(inputRequestRide);
   const outputGetRide = await rideService.getRide(outputRequestRide.rideId);
-  expect(outputGetRide.ride_id).toBeDefined();
-  expect(outputGetRide.status).toBe('requested');
-  expect(outputGetRide.passenger_id).toBe(outputSignup.accountId);
+  expect(outputGetRide.rideId).toBeDefined();
+  expect(outputGetRide.getStatus()).toBe('requested');
+  expect(outputGetRide.passengerId).toBe(outputSignup.accountId);
   expect(outputGetRide.date).toBeDefined();
-  expect(parseFloat(outputGetRide.from_lat)).toBe(inputRequestRide.from.lat)
-  expect(parseFloat(outputGetRide.from_long)).toBe(inputRequestRide.from.long)
-  expect(parseFloat(outputGetRide.to_lat)).toBe(inputRequestRide.to.lat)
-  expect(parseFloat(outputGetRide.to_long)).toBe(inputRequestRide.to.long)
+  expect(outputGetRide.fromLat).toBe(inputRequestRide.from.lat)
+  expect(outputGetRide.fromLong).toBe(inputRequestRide.from.long)
+  expect(outputGetRide.toLat).toBe(inputRequestRide.to.lat)
+  expect(outputGetRide.toLong).toBe(inputRequestRide.to.long)
 });
 
 test('Deve solicitar uma corrida e aceitar uma corrida', async function () {
@@ -95,8 +95,8 @@ test('Deve solicitar uma corrida e aceitar uma corrida', async function () {
   }
   await rideService.acceptRide(inputAcceptRide);
   const outputGetRide = await rideService.getRide(outputRequestRide.rideId);
-  expect(outputGetRide.status).toBe('accepted');
-  expect(outputGetRide.driver_id).toBe(outputSignupDriver.accountId);
+  expect(outputGetRide.getStatus()).toBe('accepted');
+  expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
 });
 
 test('Caso uma corrida seja solicitada por uma conta que não seja de passegeiro deve lançar um erro', async function () {

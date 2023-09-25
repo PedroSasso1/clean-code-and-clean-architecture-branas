@@ -3,6 +3,7 @@ import AccountService from '../src/AccountService';
 import sinon from 'sinon';
 import MailerGateway from '../src/MailerGateway';
 import AccountDAOMemory from '../src/AccountDAOMemory';
+import Account from '../src/Account';
 test('Deve criar um passageiro', async function () {
   const input = {
     name: 'John Doe',
@@ -13,11 +14,10 @@ test('Deve criar um passageiro', async function () {
   const accountService = new AccountService();
   const output = await accountService.signup(input);
   const account = await accountService.getAccount(output.accountId);
-  console.log(account);
-  expect(account.account_id).toBeDefined();
-  expect(account.name).toBe(input.name);
-  expect(account.email).toBe(input.email);
-  expect(account.cpf).toBe(input.cpf);
+  expect(account?.accountId).toBeDefined();
+  expect(account?.name).toBe(input.name);
+  expect(account?.email).toBe(input.email);
+  expect(account?.cpf).toBe(input.cpf);
 });
 
 test("Não deve criar um passageiro com cpf inválido", async function () {
@@ -101,14 +101,12 @@ test('Deve criar um passageiro com stub', async function () {
   const getByEmailStub = sinon.stub(AccountDAO.prototype, 'getByEmail').resolves();
   const accountService = new AccountService();
   const output = await accountService.signup(input);
-  input.account_id = output.accountId;
-  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(input);
+  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
   const account = await accountService.getAccount(output.accountId);
-  console.log(account);
-  expect(account.account_id).toBeDefined();
-  expect(account.name).toBe(input.name);
-  expect(account.email).toBe(input.email);
-  expect(account.cpf).toBe(input.cpf);
+  expect(account?.accountId).toBeDefined();
+  expect(account?.name).toBe(input.name);
+  expect(account?.email).toBe(input.email);
+  expect(account?.cpf).toBe(input.cpf);
 	saveStub.restore();
 	getByEmailStub.restore();
 	getByIdStub.restore();
@@ -126,10 +124,8 @@ test('Deve criar um passageiro com spy', async function () {
   const getByEmailStub = sinon.stub(AccountDAO.prototype, 'getByEmail').resolves();
   const accountService = new AccountService();
   const output = await accountService.signup(input);
-  input.account_id = output.accountId;
-  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(input);
-  const account = await accountService.getAccount(output.accountId);
-  console.log(account);
+  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
+  await accountService.getAccount(output.accountId);
   expect(spy.calledOnce).toBeTruthy()
 	expect(spy.calledWith(input.email, 'Verification')).toBeTruthy()
 	spy.restore()
@@ -152,8 +148,7 @@ test('Deve criar um passageiro com spy', async function () {
 	accountDAOMock.expects('getByEmail').resolves()
   const accountService = new AccountService();
   const output = await accountService.signup(input);
-  input.account_id = output.accountId;
-  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(input);
+  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
   await accountService.getAccount(output.accountId);
 	mailerMock.verify()
 	accountDAOMock.verify()
@@ -173,8 +168,8 @@ test('Deve criar um passageiro com fake', async function () {
   const accountService = new AccountService(accountDAO);
   const output = await accountService.signup(input);
   const account = await accountService.getAccount(output.accountId);
-	expect(account.account_id).toBeDefined();
-  expect(account.name).toBe(input.name);
-  expect(account.email).toBe(input.email);
-  expect(account.cpf).toBe(input.cpf);
+	expect(account?.accountId).toBeDefined();
+  expect(account?.name).toBe(input.name);
+  expect(account?.email).toBe(input.email);
+  expect(account?.cpf).toBe(input.cpf);
 });
