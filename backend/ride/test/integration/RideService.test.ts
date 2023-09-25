@@ -373,7 +373,7 @@ test('Deve solicitar uma corrida, aceitar uma corrida e iniciar uma corrida', as
   expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
 });
 
-test.only('Deve solicitar uma corrida, aceitar uma corrida, iniciar uma corrida e atualizar a posição da corrida', async function () {
+test('Deve solicitar uma corrida, aceitar uma corrida, iniciar uma corrida e atualizar a posição da corrida', async function () {
   const inputSignupPassenger = {
     name: 'John Doe',
     email: `john.doe${Math.random()}@gmail.com`,
