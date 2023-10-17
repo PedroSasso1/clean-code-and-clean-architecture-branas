@@ -1,6 +1,6 @@
 import PositionDAO from '../repository/PositionDAO';
 
-export default class GetRide {
+export default class GetPosition {
   constructor(readonly positionDAO: PositionDAO) {}
 
   async execute(positionId: string) {
