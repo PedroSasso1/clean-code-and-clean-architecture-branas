@@ -22,7 +22,7 @@ export default class Signup {
     );
     await this.accountDAO.save(account);
     await this.mailerGateway.send(
-      account.email,
+      account.email.getValue(),
       'Verification',
       `Please verify your code at first login ${account.verificationCode}`,
     );

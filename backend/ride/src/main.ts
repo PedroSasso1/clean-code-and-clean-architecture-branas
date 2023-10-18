@@ -17,4 +17,4 @@ const requestRide = new RequestRide(rideDAO, accountDAO)
 const getRide = new GetRide(rideDAO, accountDAO);
 const httpServer = new ExpressAdapter();
 new MainController(httpServer, signup, getAccount, requestRide, getRide)
-httpServer.listen(3003)
+httpServer.listen(3000)

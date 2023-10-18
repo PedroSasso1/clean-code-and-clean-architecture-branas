@@ -36,7 +36,7 @@ beforeEach(function () {
   requestRide = new RequestRide(rideDAO, accountDAO);
   acceptRide = new AcceptRide(rideDAO, accountDAO);
   startRide= new StartRide(rideDAO);
-  getRide = new GetRide(rideDAO);
+  getRide = new GetRide(rideDAO, accountDAO);
   getPosition = new GetPosition(positionDAO)
   updatePosition = new UpdatePosition(positionDAO, rideDAO)
 })
@@ -90,7 +90,7 @@ test('Deve solicitar uma corrida', async function () {
   const outputRequestRide = await requestRide.execute(inputRequestRide);
   const outputGetRide = await getRide.execute(outputRequestRide.rideId);
   expect(outputGetRide.rideId).toBeDefined();
-  expect(outputGetRide.getStatus()).toBe('requested');
+  expect(outputGetRide.status).toBe('requested');
   expect(outputGetRide.passengerId).toBe(outputSignup.accountId);
   expect(outputGetRide.date).toBeDefined();
   expect(outputGetRide.fromLat).toBe(inputRequestRide.from.lat)
@@ -136,7 +136,7 @@ test('Deve solicitar uma corrida e aceitar uma corrida', async function () {
   }
   await acceptRide.execute(inputAcceptRide);
   const outputGetRide = await getRide.execute(outputRequestRide.rideId);
-  expect(outputGetRide.getStatus()).toBe('accepted');
+  expect(outputGetRide.status).toBe('accepted');
   expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
 });
 
@@ -263,7 +263,7 @@ test('Não deve aceitar uma corrida se o status não for requested', async funct
     driverId: outputSignupDriver.accountId,
   }
   await acceptRide.execute(inputAcceptRide)
-  await expect(() => acceptRide.execute(inputAcceptRide)).rejects.toThrow(new Error('The ride is not requested'))
+  await expect(() => acceptRide.execute(inputAcceptRide)).rejects.toThrow(new Error('Invalid Status'))
 });
 
 test('Não deve aceitar uma corrida se o motorista já tiver outra corrida em andamento', async function () {
@@ -369,7 +369,7 @@ test('Deve solicitar uma corrida, aceitar uma corrida e iniciar uma corrida', as
   const inputStartRide = { rideId: outputRequestRide.rideId }
   await startRide.execute(inputStartRide);
   const outputGetRide = await getRide.execute(outputRequestRide.rideId);
-  expect(outputGetRide.getStatus()).toBe('in_progress');
+  expect(outputGetRide.status).toBe('in_progress');
   expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
 });
 

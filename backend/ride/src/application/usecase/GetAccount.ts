@@ -3,8 +3,27 @@ import AccountDAO from '../repository/AccountDAO';
 export default class GetAccount {
   constructor(readonly accountDAO: AccountDAO) {}
 
-  async execute(accountId: string) {
+  async execute(accountId: string): Promise<Output> {
     const account = await this.accountDAO.getById(accountId);
-    return account;
+    if (!account) throw new Error('Account not found');
+    return {
+      accountId: account.accountId,
+      name: account.name.getValue(),
+      email: account.email.getValue(),
+      cpf: account.cpf.getValue(),
+      carPlate: account.carPlate.getValue(),
+      isPassenger: account.isPassenger,
+      isDriver: account.isDriver,
+    };
   }
+}
+
+type Output = {
+  accountId: string;
+  name: string;
+  email: string;
+  cpf: string;
+  carPlate: string;
+  isPassenger: boolean;
+  isDriver: boolean;
 }

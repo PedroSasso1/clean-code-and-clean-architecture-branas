@@ -1,15 +1,18 @@
 import crypto from 'crypto';
-import CpfValidator from './CpfValidator';
+import Cpf from './Cpf';
+import Email from './Email';
+import Name from './Name';
+import CarPlate from './CarPlate';
 
 export default class Account {
   private constructor(
     readonly accountId: string,
-    readonly name: string,
-    readonly email: string,
-    readonly cpf: string,
+    readonly name: Name,
+    readonly email: Email,
+    readonly cpf: Cpf,
     readonly isPassenger: boolean,
     readonly isDriver: boolean,
-    readonly carPlate: string,
+    readonly carPlate: CarPlate,
     readonly date: Date,
     readonly verificationCode: string,
   ) {}
@@ -22,23 +25,17 @@ export default class Account {
     isDriver: boolean,
     carPlate: string,
   ) {
-    if (!name.match(/[a-zA-Z] [a-zA-Z]+/)) throw new Error('Invalid name');
-    if (!email.match(/^(.+)@(.+)$/)) throw new Error('Invalid email');
-    const cpfValidator = new CpfValidator();
-    if (!cpfValidator.validate(cpf)) throw new Error('Invalid cpf');
-    if (isDriver && !carPlate.match(/[A-Z]{3}[0-9]{4}/))
-      throw new Error('Invalid plate');
     const accountId = crypto.randomUUID();
     const verificationCode = crypto.randomUUID();
     const date = new Date();
     return new Account(
       accountId,
-      name,
-      email,
-      cpf,
+      new Name(name),
+      new Email(email),
+      new Cpf(cpf),
       isPassenger,
       isDriver,
-      carPlate,
+      new CarPlate(carPlate),
       date,
       verificationCode,
     );
@@ -57,12 +54,12 @@ export default class Account {
   ) {
     return new Account(
       accountId,
-      name,
-      email,
-      cpf,
+      new Name(name),
+      new Email(email),
+      new Cpf(cpf),
       isPassenger,
       isDriver,
-      carPlate,
+      new CarPlate(carPlate),
       date,
       verificationCode,
     );

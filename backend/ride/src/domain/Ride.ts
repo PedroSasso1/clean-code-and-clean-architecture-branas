@@ -1,18 +1,21 @@
 import crypto from 'crypto';
+import Coord from './Coord';
+import Status, { StatusFactory } from './Status';
 
 export default class Ride {
   driverId?: string;
+  status?: Status;
 
   private constructor(
     readonly rideId: string,
     readonly passengerId: string,
-    private status: string,
+    status: string,
     readonly date: Date,
-    readonly fromLat: number,
-    readonly fromLong: number,
-    readonly toLat: number,
-    readonly toLong: number,
-  ) {}
+    readonly from: Coord,
+    readonly to: Coord,
+  ) {
+    this.status = StatusFactory.create(this, status);
+  }
 
   static create(
     passengerId: string,
@@ -29,10 +32,8 @@ export default class Ride {
       passengerId,
       status,
       date,
-      fromLat,
-      fromLong,
-      toLat,
-      toLong,
+      new Coord(fromLat, fromLong),
+      new Coord(toLat, toLong),
     );
   }
 
@@ -52,28 +53,27 @@ export default class Ride {
       passengerId,
       status,
       date,
-      fromLat,
-      fromLong,
-      toLat,
-      toLong,
+      new Coord(fromLat, fromLong),
+      new Coord(toLat, toLong),
     );
     ride.driverId = driverId;
     return ride;
   }
 
   accept(driverId: string) {
-    if (this.status !== 'requested')
-      throw new Error('The ride is not requested');
     this.driverId = driverId;
-    this.status = 'accepted';
+    this.status?.accept();
   }
 
   start() {
-    if (this.status !== 'accepted') throw new Error('The ride is not accepted');
-    this.status = 'in_progress';
+    this.status?.start();
+  }
+
+  finish() {
+    this.status?.finish();
   }
 
   getStatus() {
-    return this.status;
+    return this.status?.value;
   }
 }

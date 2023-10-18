@@ -8,7 +8,7 @@ test('Deve criar uma ride', function () {
 test('Deve gerar erro ao aceitar uma ride com o status diferente de requested', function () {
   const ride = Ride.create('', 0, 0, 0, 0);
   ride.accept("")
-  expect(() => ride.accept("")).toThrow(new Error("The ride is not requested"))
+  expect(() => ride.accept("")).toThrow(new Error("Invalid Status"))
 });
 
 test('Deve aceitar uma ride', function () {
@@ -21,7 +21,7 @@ test('Deve gerar erro ao inicar uma ride com o status diferente de accepted', fu
   const ride = Ride.create('', 0, 0, 0, 0);
   ride.accept("")
   ride.start()
-  expect(() => ride.start()).toThrow(new Error("The ride is not accepted"))
+  expect(() => ride.start()).toThrow(new Error("Invalid Status"))
 });
 
 test('Deve inciar uma ride', function () {
