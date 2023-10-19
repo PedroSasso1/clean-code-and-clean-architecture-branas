@@ -164,6 +164,7 @@ export class StatusFactory {
     if(status === "accepted") return new AcceptedStatus(ride);
     if(status === "in_progress") return new InProgressStatus(ride);
     if(status === "completed") return new CompletedStatus(ride);
+    if(status === 'cancelled') return new CancelledStatus(ride);
     throw new Error('Invalid Status')
   }
 }
