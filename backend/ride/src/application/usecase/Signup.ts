@@ -1,12 +1,15 @@
 import AccountRepository from '../repository/AccountRepository';
 import MailerGateway from '../gateway/MailerGateway';
 import Account from '../../domain/Account';
+import RepositoryFactory from '../factory/RepositoryFactory';
 
 export default class Signup {
-  mailerGateway: MailerGateway;
+  readonly accountRepository: AccountRepository;
+  readonly mailerGateway: MailerGateway;
 
-  constructor(readonly accountRepository: AccountRepository) {
+  constructor(readonly repositoryFactory: RepositoryFactory) {
     this.mailerGateway = new MailerGateway();
+    this.accountRepository =  repositoryFactory.createAccountRepository();
   }
 
   async execute(input: Input) {

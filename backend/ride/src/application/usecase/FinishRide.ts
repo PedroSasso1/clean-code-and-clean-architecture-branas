@@ -1,11 +1,15 @@
+import RepositoryFactory from '../factory/RepositoryFactory';
 import PositionRepository from '../repository/PositionRepository';
 import RideRepository from '../repository/RideRepository';
 
 export default class FinishRide {
-  constructor(
-    readonly rideRepository: RideRepository,
-    readonly positionRepository: PositionRepository,
-  ) {}
+  readonly rideRepository: RideRepository;
+  readonly positionRepository: PositionRepository;
+  
+  constructor(readonly repositoryFactory: RepositoryFactory) {
+    this.rideRepository = repositoryFactory.createRideRepository();
+    this.positionRepository = repositoryFactory.createPositionRepository();
+  }
 
   async execute(input: Input) {
     const ride = await this.rideRepository.getById(input.rideId);

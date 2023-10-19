@@ -1,40 +1,32 @@
 import AcceptRide from '../../src/application/usecase/AcceptRide';
-import AccountRepository from '../../src/application/repository/AccountRepository';
-import AccountRepositoryDatabase from '../../src/infra/repository/AccountRepositoryDatabase';
 import Connection from '../../src/infra/database/Connection';
 import GetRide from '../../src/application/usecase/GetRide';
 import PgPromiseAdapter from '../../src/infra/database/PgPromiseAdapter';
 import RequestRide from '../../src/application/usecase/RequestRide';
-import RideRepository from '../../src/application/repository/RideRepository';
-import RideRepositoryDatabase from '../../src/infra/repository/RideRepositoryDatabase';
 import Signup from '../../src/application/usecase/Signup';
 import StartRide from '../../src/application/usecase/StartRide';
 import UpdatePosition from '../../src/application/usecase/UpdatePosition';
-import PositionRepository from '../../src/application/repository/PositionRepository';
-import PositionRepositoryDatabase from '../../src/infra/repository/PositionRepositoryDatabase';
+import RepositoryFactory from '../../src/application/factory/RepositoryFactory';
+import RepositoryDatabaseFactory from '../../src/infra/factory/RepositoryDatabaseFactory';
 
 let connection: Connection;
-let accountRepository: AccountRepository;
-let rideRepository: RideRepository;
+let repositoryFactory: RepositoryFactory;
 let signup: Signup;
 let requestRide: RequestRide;
 let acceptRide: AcceptRide;
 let startRide: StartRide;
 let getRide: GetRide;
-let positionRepository: PositionRepository;
 let updatePosition: UpdatePosition;
 
 beforeEach(function () {
   connection = new PgPromiseAdapter();
-  accountRepository = new AccountRepositoryDatabase(connection);
-  rideRepository = new RideRepositoryDatabase(connection);
-  positionRepository = new PositionRepositoryDatabase(connection);
-  signup = new Signup(accountRepository);
-  requestRide = new RequestRide(rideRepository, accountRepository);
-  acceptRide = new AcceptRide(rideRepository, accountRepository);
-  startRide= new StartRide(rideRepository);
-  getRide = new GetRide(rideRepository, accountRepository);
-  updatePosition = new UpdatePosition(positionRepository, rideRepository)
+  repositoryFactory = new RepositoryDatabaseFactory(connection);
+  signup = new Signup(repositoryFactory);
+  requestRide = new RequestRide(repositoryFactory);
+  acceptRide = new AcceptRide(repositoryFactory);
+  startRide= new StartRide(repositoryFactory);
+  getRide = new GetRide(repositoryFactory);
+  updatePosition = new UpdatePosition(repositoryFactory)
 })
 
 test('Deve solicitar uma corrida e receber a rideId', async function () {

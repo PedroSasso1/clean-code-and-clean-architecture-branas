@@ -1,7 +1,12 @@
+import RepositoryFactory from '../factory/RepositoryFactory';
 import AccountRepository from '../repository/AccountRepository';
 
 export default class GetAccount {
-  constructor(readonly accountRepository: AccountRepository) {}
+  readonly accountRepository: AccountRepository;
+
+  constructor(readonly repositoryFactory: RepositoryFactory) {
+    this.accountRepository = repositoryFactory.createAccountRepository();
+  }
 
   async execute(accountId: string): Promise<Output> {
     const account = await this.accountRepository.getById(accountId);

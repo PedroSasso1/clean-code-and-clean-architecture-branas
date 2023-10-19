@@ -1,12 +1,16 @@
 import Position from '../../domain/Position';
+import RepositoryFactory from '../factory/RepositoryFactory';
 import PositionRepository from '../repository/PositionRepository';
 import RideRepository from '../repository/RideRepository';
 
 export default class UpdatePosition {
-  constructor(
-    readonly positionRepository: PositionRepository,
-    readonly rideRepository: RideRepository,
-  ) {}
+  readonly positionRepository: PositionRepository;
+  readonly rideRepository: RideRepository;
+
+  constructor(readonly repositoryFactory: RepositoryFactory) {
+    this.positionRepository = repositoryFactory.createPositionRepository();
+    this.rideRepository = repositoryFactory.createRideRepository();
+  }
 
   async execute(input: Input) {
     const ride = await this.rideRepository.getById(input.rideId);
