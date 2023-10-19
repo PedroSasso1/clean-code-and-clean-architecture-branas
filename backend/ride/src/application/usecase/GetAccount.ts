@@ -1,10 +1,10 @@
-import AccountDAO from '../repository/AccountDAO';
+import AccountRepository from '../repository/AccountRepository';
 
 export default class GetAccount {
-  constructor(readonly accountDAO: AccountDAO) {}
+  constructor(readonly accountRepository: AccountRepository) {}
 
   async execute(accountId: string): Promise<Output> {
-    const account = await this.accountDAO.getById(accountId);
+    const account = await this.accountRepository.getById(accountId);
     if (!account) throw new Error('Account not found');
     return {
       accountId: account.accountId,

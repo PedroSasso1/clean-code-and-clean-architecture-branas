@@ -1,18 +1,18 @@
-import RideDAO from '../repository/RideDAO';
-import AccountDAO from '../repository/AccountDAO';
+import RideRepository from '../repository/RideRepository';
+import AccountRepository from '../repository/AccountRepository';
 import Ride from '../../domain/Ride';
 
 export default class RequestRide {
   constructor(
-    readonly rideDAO: RideDAO,
-    readonly accountDAO: AccountDAO,
+    readonly rideRepository: RideRepository,
+    readonly accountRepository: AccountRepository,
   ) {}
 
   async execute(input: Input) {
-    const account = await this.accountDAO.getById(input.passengerId);
+    const account = await this.accountRepository.getById(input.passengerId);
     if (!account?.isPassenger)
       throw new Error('Account is not from a passenger');
-    const activeRides = await this.rideDAO.getActiveRidesByPassengerId(
+    const activeRides = await this.rideRepository.getActiveRidesByPassengerId(
       input.passengerId,
     );
     if (activeRides.length > 0)
@@ -24,7 +24,7 @@ export default class RequestRide {
       input.to.lat,
       input.to.long,
     );
-    await this.rideDAO.save(ride);
+    await this.rideRepository.save(ride);
     return { rideId: ride.rideId };
   }
 }

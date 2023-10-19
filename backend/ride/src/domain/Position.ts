@@ -1,18 +1,18 @@
 import crypto from 'crypto';
+import Coord from './Coord';
 
 export default class Position {
   private constructor(
     readonly positionId: string,
     readonly rideId: string,
-    readonly lat: number,
-    readonly long: number,
+    readonly coord: Coord,
     readonly date: Date,
   ) {}
 
   static create(rideId: string, lat: number, long: number) {
     const positionId = crypto.randomUUID();
     const date = new Date();
-    return new Position(positionId, rideId, lat, long, date);
+    return new Position(positionId, rideId, new Coord(lat, long), date);
   }
 
   static restore(
@@ -22,6 +22,6 @@ export default class Position {
     long: number,
     date: Date,
   ) {
-    return new Position(positionId, rideId, lat, long, date);
+    return new Position(positionId, rideId, new Coord(lat, long), date);
   }
 }

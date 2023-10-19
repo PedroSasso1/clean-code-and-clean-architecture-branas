@@ -1,9 +1,8 @@
-import pgp from 'pg-promise';
-import RideDAO from '../../application/repository/RideDAO';
+import RideRepository from '../../application/repository/RideRepository';
 import Ride from '../../domain/Ride';
 import Connection from '../database/Connection';
 
-export default class RideDAODatabase implements RideDAO {
+export default class RideRepositoryDatabase implements RideRepository {
   constructor(readonly connection: Connection) {}
 
   async save(ride: Ride) {
@@ -25,8 +24,8 @@ export default class RideDAODatabase implements RideDAO {
 
   async update(ride: Ride): Promise<void> {
     await this.connection.query(
-      `update cccat13.ride set driver_id = $1, status = $2 where ride_id = $3`,
-      [ride.driverId, ride.getStatus(), ride.rideId],
+      `update cccat13.ride set driver_id = $1, status = $2, distance = $3, fare = $4 where ride_id = $5`,
+      [ride.driverId, ride.getStatus(), ride.getDistance(), ride.getFare(), ride.rideId],
     );
   }
 
@@ -45,6 +44,8 @@ export default class RideDAODatabase implements RideDAO {
       parseFloat(rideData.from_long),
       parseFloat(rideData.to_lat),
       parseFloat(rideData.to_long),
+      parseFloat(rideData.distance),
+      parseFloat(rideData.fare)
     );
   }
 

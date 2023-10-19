@@ -1,6 +1,6 @@
-import AccountDAO from '../../application/repository/AccountDAO';
+import AccountRepository from '../../application/repository/AccountRepository';
 
-export default class AccountDAOMemory implements AccountDAO {
+export default class AccountRepositoryMemory implements AccountRepository {
   accounts: any[] = [];
 
   async save(account: any): Promise<void> {

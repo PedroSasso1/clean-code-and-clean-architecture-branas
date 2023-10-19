@@ -1,9 +1,8 @@
-import pgp from 'pg-promise';
-import AccountDAO from '../../application/repository/AccountDAO';
+import AccountRepository from '../../application/repository/AccountRepository';
 import Account from '../../domain/Account';
 import Connection from '../database/Connection';
 
-export default class AccountDAODatabase implements AccountDAO {
+export default class AccountRepositoryDatabase implements AccountRepository {
   constructor(readonly connection: Connection) {}
 
   async save(account: Account) {

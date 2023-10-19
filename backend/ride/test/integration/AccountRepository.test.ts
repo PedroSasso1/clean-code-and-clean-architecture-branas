@@ -1,15 +1,15 @@
 import Account from '../../src/domain/Account';
-import AccountDAODatabase from '../../src/infra/repository/AccountDAODatabase';
-import AccountDAO from '../../src/infra/repository/AccountDAODatabase';
+import AccountRepositoryDatabase from '../../src/infra/repository/AccountRepositoryDatabase';
+import AccountRepository from '../../src/infra/repository/AccountRepositoryDatabase';
 import Connection from '../../src/infra/database/Connection';
 import PgPromiseAdapter from '../../src/infra/database/PgPromiseAdapter';
 
 let connection: Connection;
-let accountDAO: AccountDAO;
+let accountRepository: AccountRepository;
 
 beforeEach(function () {
   connection = new PgPromiseAdapter();
-  accountDAO = new AccountDAODatabase(connection);
+  accountRepository = new AccountRepositoryDatabase(connection);
 });
 
 test('Deve criar um registro na tabela account e consultar por email', async function () {
@@ -21,8 +21,8 @@ test('Deve criar um registro na tabela account e consultar por email', async fun
     false,
     '',
   );
-  await accountDAO.save(account);
-  const savedAccount = await accountDAO.getByEmail(account.email.getValue());
+  await accountRepository.save(account);
+  const savedAccount = await accountRepository.getByEmail(account.email.getValue());
   expect(savedAccount?.name.getValue()).toBe(account.name.getValue());
   expect(savedAccount?.email.getValue()).toBe(account.email.getValue());
   expect(savedAccount?.cpf.getValue()).toBe(account.cpf.getValue());
@@ -40,8 +40,8 @@ test('Deve criar um registro na tabela account e consultar por account_id', asyn
     false,
     '',
   );
-  await accountDAO.save(account);
-  const savedAccount = await accountDAO.getById(account.accountId);
+  await accountRepository.save(account);
+  const savedAccount = await accountRepository.getById(account.accountId);
   expect(savedAccount?.name.getValue()).toBe(account.name.getValue());
   expect(savedAccount?.email.getValue()).toBe(account.email.getValue());
   expect(savedAccount?.cpf.getValue()).toBe(account.cpf.getValue());

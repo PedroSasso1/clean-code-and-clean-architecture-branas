@@ -1,20 +1,19 @@
 import Position from '../../domain/Position';
-import PositionDAO from '../repository/PositionDAO';
-import RideDAO from '../repository/RideDAO';
-import crypto from 'crypto';
+import PositionRepository from '../repository/PositionRepository';
+import RideRepository from '../repository/RideRepository';
 
 export default class UpdatePosition {
   constructor(
-    readonly positionDAO: PositionDAO,
-    readonly rideDAO: RideDAO,
+    readonly positionRepository: PositionRepository,
+    readonly rideRepository: RideRepository,
   ) {}
 
   async execute(input: Input) {
-    const ride = await this.rideDAO.getById(input.rideId);
+    const ride = await this.rideRepository.getById(input.rideId);
     if (ride.getStatus() !== 'in_progress')
       throw new Error('The ride is not in_progress');
     const position = Position.create(input.rideId, input.lat, input.long);
-    await this.positionDAO.save(position)
+    await this.positionRepository.save(position)
     return { positionId: position.positionId };
   }
 }

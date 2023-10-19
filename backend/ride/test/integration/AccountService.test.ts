@@ -1,24 +1,24 @@
-import AccountDAO from '../../src/infra/repository/AccountDAODatabase';
+import AccountRepository from '../../src/infra/repository/AccountRepositoryDatabase';
 import sinon from 'sinon';
 import MailerGateway from '../../src/application/gateway/MailerGateway';
-import AccountDAOMemory from '../../src/infra/repository/AccountDAOMemory';
+import AccountRepositoryMemory from '../../src/infra/repository/AccountRepositoryMemory';
 import Account from '../../src/domain/Account';
 import Signup from '../../src/application/usecase/Signup';
 import GetAccount from '../../src/application/usecase/GetAccount';
 import PgPromiseAdapter from '../../src/infra/database/PgPromiseAdapter';
-import AccountDAODatabase from '../../src/infra/repository/AccountDAODatabase';
+import AccountRepositoryDatabase from '../../src/infra/repository/AccountRepositoryDatabase';
 import Connection from '../../src/infra/database/Connection';
 
 let connection: Connection;
-let accountDAO: AccountDAO;
+let accountRepository: AccountRepository;
 let signup: Signup;
 let getAccount: GetAccount;
 
 beforeEach(function () {
 	connection = new PgPromiseAdapter();
-  accountDAO = new AccountDAODatabase(connection);
-	signup = new Signup(accountDAO);
-  getAccount = new GetAccount(accountDAO);
+  accountRepository = new AccountRepositoryDatabase(connection);
+	signup = new Signup(accountRepository);
+  getAccount = new GetAccount(accountRepository);
 })
 
 test('Deve criar um passageiro', async function () {
@@ -121,10 +121,10 @@ test('Deve criar um passageiro com stub', async function () {
 		isDriver: false,
 		carPlate: ''
   };
-  const saveStub = sinon.stub(AccountDAO.prototype, 'save').resolves();
-  const getByEmailStub = sinon.stub(AccountDAO.prototype, 'getByEmail').resolves();
+  const saveStub = sinon.stub(AccountRepository.prototype, 'save').resolves();
+  const getByEmailStub = sinon.stub(AccountRepository.prototype, 'getByEmail').resolves();
   const output = await signup.execute(input);
-  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
+  const getByIdStub = sinon.stub(AccountRepository.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
   const account = await getAccount.execute(output.accountId);
   expect(account?.accountId).toBeDefined();
   expect(account?.name).toBe(input.name);
@@ -145,10 +145,10 @@ test('Deve criar um passageiro com spy', async function () {
 		isDriver: false,
 		carPlate: ''
   };
-  const saveStub = sinon.stub(AccountDAO.prototype, 'save').resolves();
-  const getByEmailStub = sinon.stub(AccountDAO.prototype, 'getByEmail').resolves();
+  const saveStub = sinon.stub(AccountRepository.prototype, 'save').resolves();
+  const getByEmailStub = sinon.stub(AccountRepository.prototype, 'getByEmail').resolves();
   const output = await signup.execute(input);
-  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
+  const getByIdStub = sinon.stub(AccountRepository.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
   await getAccount.execute(output.accountId);
   expect(spy.calledOnce).toBeTruthy()
 	expect(spy.calledWith(input.email, 'Verification')).toBeTruthy()
@@ -169,11 +169,11 @@ test('Deve criar um passageiro com spy', async function () {
   };
 	const mailerMock = sinon.mock(MailerGateway.prototype)
 	mailerMock.expects("send").withArgs(input.email, "Verification").calledOnce;
-	const accountDAOMock = sinon.mock(AccountDAO.prototype)
+	const accountDAOMock = sinon.mock(AccountRepository.prototype)
 	accountDAOMock.expects('save').resolves()
 	accountDAOMock.expects('getByEmail').resolves()
   const output = await signup.execute(input);
-  const getByIdStub = sinon.stub(AccountDAO.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
+  const getByIdStub = sinon.stub(AccountRepository.prototype, 'getById').resolves(Account.create(input.name,input.email, input.cpf, input.isPassenger, false, ''));
   await getAccount.execute(output.accountId);
 	mailerMock.verify()
 	accountDAOMock.verify()
@@ -183,7 +183,7 @@ test('Deve criar um passageiro com spy', async function () {
 });
 
 test('Deve criar um passageiro com fake', async function () {
-	const accountDAO = new AccountDAOMemory();
+	const accountDAO = new AccountRepositoryMemory();
 	signup = new Signup(accountDAO);
 	getAccount = new GetAccount(accountDAO);
 	const input: any = {

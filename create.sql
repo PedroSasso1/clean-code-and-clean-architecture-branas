@@ -3,7 +3,7 @@ drop schema cccat13 cascade;
 create schema cccat13;
 
 create table cccat13.account (
-	account_id uuid,
+	account_id uuid primary key,
 	name text,
 	email text,
 	cpf text,
@@ -16,7 +16,7 @@ create table cccat13.account (
 );
 
 create table cccat13.ride (
-	ride_id uuid,
+	ride_id uuid primary key,
 	passenger_id uuid,
 	driver_id uuid,
 	status text,
@@ -30,7 +30,7 @@ create table cccat13.ride (
 );
 
 create table cccat13.position (
-	position_id uuid,
+	position_id uuid primary key,
 	ride_id uuid,
 	lat numeric,
 	long numeric,

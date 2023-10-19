@@ -1,16 +1,16 @@
-import AccountDAO from '../repository/AccountDAO';
+import AccountRepository from '../repository/AccountRepository';
 import MailerGateway from '../gateway/MailerGateway';
 import Account from '../../domain/Account';
 
 export default class Signup {
   mailerGateway: MailerGateway;
 
-  constructor(readonly accountDAO: AccountDAO) {
+  constructor(readonly accountRepository: AccountRepository) {
     this.mailerGateway = new MailerGateway();
   }
 
   async execute(input: Input) {
-    const existingAccount = await this.accountDAO.getByEmail(input.email);
+    const existingAccount = await this.accountRepository.getByEmail(input.email);
     if (existingAccount) throw new Error('Account already exists');
     const account = Account.create(
       input.name,
@@ -20,7 +20,7 @@ export default class Signup {
       input.isDriver,
       input.carPlate,
     );
-    await this.accountDAO.save(account);
+    await this.accountRepository.save(account);
     await this.mailerGateway.send(
       account.email.getValue(),
       'Verification',

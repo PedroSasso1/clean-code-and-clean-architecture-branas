@@ -1,3 +1,4 @@
+// State Pattern
 import Ride from './Ride';
 
 export default abstract class Status {
