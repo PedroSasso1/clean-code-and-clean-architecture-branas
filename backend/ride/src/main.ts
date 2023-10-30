@@ -6,13 +6,16 @@ import ExpressAdapter from './infra/http/ExpressAdapter';
 import RequestRide from './application/usecase/RequestRide';
 import GetRide from './application/usecase/GetRide';
 import RepositoryDatabaseFactory from './infra/factory/RepositoryDatabaseFactory';
+import Registry from './infra/dependency-injection/Registry';
 
 const connection = new PgPromiseAdapter();
 const repositoryFactory = new RepositoryDatabaseFactory(connection);
-const signup = new Signup(repositoryFactory)
-const getAccount = new GetAccount(repositoryFactory)
-const requestRide = new RequestRide(repositoryFactory)
-const getRide = new GetRide(repositoryFactory);
 const httpServer = new ExpressAdapter();
-new MainController(httpServer, signup, getAccount, requestRide, getRide)
+const registry = Registry.getInstance();
+registry.provide("signup", new Signup(repositoryFactory));
+registry.provide("getAccount", new GetAccount(repositoryFactory));
+registry.provide("requestRide", new RequestRide(repositoryFactory));
+registry.provide("getRide", new GetRide(repositoryFactory));
+
+new MainController(httpServer)
 httpServer.listen(3000)
