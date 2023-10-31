@@ -22,6 +22,7 @@ export default class Signup {
       input.isPassenger,
       input.isDriver,
       input.carPlate,
+      input.password
     );
     await this.accountRepository.save(account);
     await this.mailerGateway.send(
@@ -40,4 +41,5 @@ type Input = {
   isPassenger: boolean,
   isDriver: boolean,
   carPlate: string,
+  password?: string,
 }

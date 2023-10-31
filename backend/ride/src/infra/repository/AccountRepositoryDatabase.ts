@@ -7,7 +7,11 @@ export default class AccountRepositoryDatabase implements AccountRepository {
 
   async save(account: Account) {
     await this.connection.query(
-      'insert into cccat13.account (account_id, name, email, cpf, car_plate, is_passenger, is_driver, date, is_verified, verification_code) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      `insert into cccat13.account (
+        account_id, name, email, cpf, car_plate,
+        is_passenger, is_driver, date, is_verified,
+        verification_code, password, password_algorithm, salt
+      ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
       [
         account.accountId,
         account.name.getValue(),
@@ -19,6 +23,9 @@ export default class AccountRepositoryDatabase implements AccountRepository {
         account.date,
         false,
         account.verificationCode,
+        account.password.value,
+        account.password.algorithm,
+        account.password.salt
       ],
     );
   }
@@ -39,6 +46,9 @@ export default class AccountRepositoryDatabase implements AccountRepository {
       accountData.car_plate,
       accountData.date,
       accountData.verification_code,
+      accountData.password,
+      accountData.password_algorithm,
+      accountData.salt
     );
   }
 
@@ -58,6 +68,9 @@ export default class AccountRepositoryDatabase implements AccountRepository {
       accountData.car_plate,
       accountData.date,
       accountData.verification_code,
+      accountData.password,
+      accountData.password_algorithm,
+      accountData.salt
     );
   }
 }

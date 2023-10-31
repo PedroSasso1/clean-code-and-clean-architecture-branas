@@ -3,6 +3,7 @@ import Cpf from './Cpf';
 import Email from './Email';
 import Name from './Name';
 import CarPlate from './CarPlate';
+import { PBKDF2Password, Password, PasswordFactory, PlainPassword, SHA1Password } from './Password';
 
 export default class Account {
   private constructor(
@@ -15,6 +16,7 @@ export default class Account {
     readonly carPlate: CarPlate,
     readonly date: Date,
     readonly verificationCode: string,
+    readonly password: Password
   ) {}
 
   static create(
@@ -24,6 +26,7 @@ export default class Account {
     isPassenger: boolean,
     isDriver: boolean,
     carPlate: string,
+    password: string = ""
   ) {
     const accountId = crypto.randomUUID();
     const verificationCode = crypto.randomUUID();
@@ -38,6 +41,7 @@ export default class Account {
       new CarPlate(carPlate),
       date,
       verificationCode,
+      PBKDF2Password.create(password)
     );
   }
 
@@ -51,6 +55,9 @@ export default class Account {
     carPlate: string,
     date: Date,
     verificationCode: string,
+    password: string,
+    passwordAlgorithm: string,
+    salt: string
   ) {
     return new Account(
       accountId,
@@ -62,6 +69,7 @@ export default class Account {
       new CarPlate(carPlate),
       date,
       verificationCode,
+      PasswordFactory.create(passwordAlgorithm).restore(password, salt),
     );
   }
 }
