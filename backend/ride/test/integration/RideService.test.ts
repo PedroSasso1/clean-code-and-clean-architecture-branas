@@ -3,15 +3,17 @@ import Connection from '../../src/infra/database/Connection';
 import GetRide from '../../src/application/usecase/GetRide';
 import PgPromiseAdapter from '../../src/infra/database/PgPromiseAdapter';
 import RequestRide from '../../src/application/usecase/RequestRide';
-import Signup from '../../src/application/usecase/Signup';
 import StartRide from '../../src/application/usecase/StartRide';
 import UpdatePosition from '../../src/application/usecase/UpdatePosition';
 import RepositoryFactory from '../../src/application/factory/RepositoryFactory';
 import RepositoryDatabaseFactory from '../../src/infra/factory/RepositoryDatabaseFactory';
+import AccountGateway from '../../src/application/gateway/AccountGateway';
+import AccountGatewayHttp from '../../src/infra/gateway/AccountGatewayHttp';
+import AxiosAdapter from '../../src/infra/http/AxiosAdapter';
 
 let connection: Connection;
 let repositoryFactory: RepositoryFactory;
-let signup: Signup;
+let accountGateway: AccountGateway;
 let requestRide: RequestRide;
 let acceptRide: AcceptRide;
 let startRide: StartRide;
@@ -21,11 +23,11 @@ let updatePosition: UpdatePosition;
 beforeEach(function () {
   connection = new PgPromiseAdapter();
   repositoryFactory = new RepositoryDatabaseFactory(connection);
-  signup = new Signup(repositoryFactory);
-  requestRide = new RequestRide(repositoryFactory);
-  acceptRide = new AcceptRide(repositoryFactory);
+  accountGateway = new AccountGatewayHttp(new AxiosAdapter());
+  requestRide = new RequestRide(repositoryFactory, accountGateway);
+  acceptRide = new AcceptRide(repositoryFactory, accountGateway);
   startRide= new StartRide(repositoryFactory);
-  getRide = new GetRide(repositoryFactory);
+  getRide = new GetRide(repositoryFactory, accountGateway);
   updatePosition = new UpdatePosition(repositoryFactory)
 })
 
@@ -38,7 +40,7 @@ test('Deve solicitar uma corrida e receber a rideId', async function () {
     isDriver: false,
     carPlate: ''
   };
-  const outputSignup = await signup.execute(inputSignup);
+  const outputSignup = await accountGateway.signup(inputSignup);
   const inputRequestRide = {
     passengerId: outputSignup.accountId,
     from: {
@@ -63,7 +65,7 @@ test('Deve solicitar uma corrida', async function () {
     isDriver: false,
     carPlate: ''
   };
-  const outputSignup = await signup.execute(inputSignup);
+  const outputSignup = await accountGateway.signup(inputSignup);
   const inputRequestRide = {
     passengerId: outputSignup.accountId,
     from: {
@@ -96,7 +98,7 @@ test('Deve solicitar uma corrida e aceitar uma corrida', async function () {
     isDriver: false,
     carPlate: ''
   };
-  const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+  const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
   const inputRequestRide = {
     passengerId: outputSignupPassenger.accountId,
     from: {
@@ -117,7 +119,7 @@ test('Deve solicitar uma corrida e aceitar uma corrida', async function () {
     isDriver: true,
     isPassenger: false
   };
-  const outputSignupDriver = await signup.execute(inputSignupDriver);
+  const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
   const inputAcceptRide = {
     rideId: outputRequestRide.rideId,
     driverId: outputSignupDriver.accountId,
@@ -137,7 +139,7 @@ test('Caso uma corrida seja solicitada por uma conta que não seja de passegeiro
     isDriver: true,
     isPassenger: false
   };
-  const outputSignup = await signup.execute(inputSignup);
+  const outputSignup = await accountGateway.signup(inputSignup);
   const inputRequestRide = {
     passengerId: outputSignup.accountId,
     from: {
@@ -161,7 +163,7 @@ test('Caso uma corrida seja solicitada por um passegeiro e ele ja tenha uma outr
     isDriver: false,
     carPlate: ''
   };
-  const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+  const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
   const inputRequestRide = {
     passengerId: outputSignupPassenger.accountId,
     from: {
@@ -186,7 +188,7 @@ test('Não deve aceitar uma corrida se account não for driver', async function 
     isDriver: false,
     carPlate: ''
   };
-  const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+  const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
   const inputRequestRide = {
     passengerId: outputSignupPassenger.accountId,
     from: {
@@ -207,7 +209,7 @@ test('Não deve aceitar uma corrida se account não for driver', async function 
     isDriver: false,
     carPlate: ''
   };
-  const outputSignupDriver = await signup.execute(inputSignupDriver);
+  const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
   const inputAcceptRide = {
     rideId: outputRequestRide.rideId,
     driverId: outputSignupDriver.accountId,
@@ -224,7 +226,7 @@ test('Não deve aceitar uma corrida se o status não for requested', async funct
     isDriver: false,
     carPlate: ''
   };
-  const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+  const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
   const inputRequestRide = {
     passengerId: outputSignupPassenger.accountId,
     from: {
@@ -245,7 +247,7 @@ test('Não deve aceitar uma corrida se o status não for requested', async funct
     carPlate: 'AAA9999',
     isPassenger: false,
   };
-  const outputSignupDriver = await signup.execute(inputSignupDriver);
+  const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
   const inputAcceptRide = {
     rideId: outputRequestRide.rideId,
     driverId: outputSignupDriver.accountId,
@@ -271,8 +273,8 @@ test('Não deve aceitar uma corrida se o motorista já tiver outra corrida em an
     isDriver: false,
     carPlate: ''
   };
-  const outputSignupPassenger1 = await signup.execute(inputSignupPassenger1);
-  const outputSignupPassenger2 = await signup.execute(inputSignupPassenger2);
+  const outputSignupPassenger1 = await accountGateway.signup(inputSignupPassenger1);
+  const outputSignupPassenger2 = await accountGateway.signup(inputSignupPassenger2);
   const inputRequestRide1 = {
     passengerId: outputSignupPassenger1.accountId,
     from: {
@@ -305,7 +307,7 @@ test('Não deve aceitar uma corrida se o motorista já tiver outra corrida em an
     carPlate: 'AAA9999',
     isPassenger: false
   };
-  const outputSignupDriver = await signup.execute(inputSignupDriver);
+  const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
   const inputAcceptRide1 = {
     rideId: outputRequestRide1.rideId,
     driverId: outputSignupDriver.accountId,
@@ -327,7 +329,7 @@ test('Deve solicitar uma corrida, aceitar uma corrida e iniciar uma corrida', as
     isDriver: false,
     carPlate: ''
   };
-  const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+  const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
   const inputRequestRide = {
     passengerId: outputSignupPassenger.accountId,
     from: {
@@ -348,7 +350,7 @@ test('Deve solicitar uma corrida, aceitar uma corrida e iniciar uma corrida', as
     isDriver: true,
     isPassenger: false
   };
-  const outputSignupDriver = await signup.execute(inputSignupDriver);
+  const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
   const inputAcceptRide = {
     rideId: outputRequestRide.rideId,
     driverId: outputSignupDriver.accountId,

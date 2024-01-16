@@ -1,6 +1,5 @@
 import RepositoryFactory from '../../application/factory/RepositoryFactory';
-import AccountRepository from '../../application/repository/AccountRepository';
-import PositionRepository from "../../application/repository/PositionRepository";
+import PositionRepository from '../../application/repository/PositionRepository';
 import RideRepository from "../../application/repository/RideRepository";
 import Connection from "../database/Connection";
 import AccountRepositoryDatabase from '../repository/AccountRepositoryDatabase';
@@ -13,9 +12,7 @@ export default class RepositoryDatabaseFactory implements RepositoryFactory {
   createRideRepository(): RideRepository {
     return new RideRepositoryDatabase(this.connection)
   }
-  createAccountRepository(): AccountRepository {
-    return new AccountRepositoryDatabase(this.connection)
-  }
+  
   createPositionRepository(): PositionRepository {
     return new PositionRepositoryDatabase(this.connection)
   }

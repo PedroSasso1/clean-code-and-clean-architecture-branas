@@ -3,15 +3,17 @@ import Connection from '../../src/infra/database/Connection';
 import GetRide from '../../src/application/usecase/GetRide';
 import PgPromiseAdapter from '../../src/infra/database/PgPromiseAdapter';
 import RequestRide from '../../src/application/usecase/RequestRide';
-import Signup from '../../src/application/usecase/Signup';
 import StartRide from '../../src/application/usecase/StartRide';
 import UpdatePosition from '../../src/application/usecase/UpdatePosition';
 import RepositoryFactory from '../../src/application/factory/RepositoryFactory';
 import RepositoryDatabaseFactory from '../../src/infra/factory/RepositoryDatabaseFactory';
+import AccountGateway from '../../src/application/gateway/AccountGateway';
+import AccountGatewayHttp from '../../src/infra/gateway/AccountGatewayHttp';
+import AxiosAdapter from '../../src/infra/http/AxiosAdapter';
 
 let connection: Connection;
 let repositoryFactory: RepositoryFactory;
-let signup: Signup;
+let accountGateway: AccountGateway;
 let requestRide: RequestRide;
 let acceptRide: AcceptRide;
 let startRide: StartRide;
@@ -21,11 +23,11 @@ let updatePosition: UpdatePosition;
 beforeEach(function () {
   connection = new PgPromiseAdapter();
   repositoryFactory = new RepositoryDatabaseFactory(connection);
-  signup = new Signup(repositoryFactory);
-  requestRide = new RequestRide(repositoryFactory);
-  acceptRide = new AcceptRide(repositoryFactory);
+  accountGateway = new AccountGatewayHttp(new AxiosAdapter());
+  requestRide = new RequestRide(repositoryFactory, accountGateway);
+  acceptRide = new AcceptRide(repositoryFactory, accountGateway);
   startRide= new StartRide(repositoryFactory);
-  getRide = new GetRide(repositoryFactory);
+  getRide = new GetRide(repositoryFactory, accountGateway);
   updatePosition = new UpdatePosition(repositoryFactory)
 })
 test('Deve solicitar, aceitar, iniciar e atualizar a posição de uma corrida', async function () {
@@ -37,7 +39,7 @@ test('Deve solicitar, aceitar, iniciar e atualizar a posição de uma corrida', 
     isDriver: false,
     carPlate: ''
   };
-  const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+  const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
   const inputRequestRide = {
     passengerId: outputSignupPassenger.accountId,
     from: {
@@ -58,7 +60,7 @@ test('Deve solicitar, aceitar, iniciar e atualizar a posição de uma corrida', 
     isDriver: true,
     isPassenger: false
   };
-  const outputSignupDriver = await signup.execute(inputSignupDriver);
+  const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
   const inputAcceptRide = {
     rideId: outputRequestRide.rideId,
     driverId: outputSignupDriver.accountId,
